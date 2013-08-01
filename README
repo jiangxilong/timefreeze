@@ -1,0 +1,52 @@
+TimeFreeze - Linux kernel module (tested on Fedora 13, kernel 2.6.34.9-69.fc13.i686)
+
+This module locks ("freezes") linux kernel time to 1367935298L within
+directory "~/workspace".
+Technically, it redefines basic kernel functions (syscalls)
+concerning time in the "sys_call_table".
+Redefined syscall operates as follows: first the path is checked,
+from where the syscall was called, then, if needed, some additional
+instructions are performed, and finally the function falls back to
+the original syscall.
+Redefined functions are:
+
+stat
+lstat
+fstat
+newstat
+newlstat
+newfstat
+stat64
+lstat64
+fstat64
+("struct statbuf" fields are filled with 1367935298L)
+
+time
+gettimeofday
+clock_gettime
+(just return 1367935298L)
+
+utime
+utimes
+utimensat
+futimesat
+(set the destination files times to 1367935298L)
+
+The path "~/workspace" is defined in timefreeze.h
+header. Time value to be locked at may be changed in timefreeze.c
+(search "TF_current_time = 1367935298L").
+
+Install:
+To make this module simply use "make" tool (GNU Make). Be sure to have
+kernel headers for your current kernel version!
+
+Note:
+create-sct-header.sh is a script to find "sys_call_table" address for
+your system individually. Address is being taken from "System.map".
+If you prefer to hide your "System.map" files or just do not have them,
+please, create file "sct_address.h" manually, then type a single line
+there, which may look like this:
+#define SYS_CALL_TABLE_HARD_ADDRESS 0xc0798320
+
+Andrew Trifonenkov
+July 2013
